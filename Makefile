@@ -4,7 +4,7 @@ run:
 	go run cmd/main.go
 
 build:
-	go build -o app
+	go build -o app cmd/main.go
 
 test:
 	go test ./...
