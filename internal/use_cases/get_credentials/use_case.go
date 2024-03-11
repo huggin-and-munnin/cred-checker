@@ -3,6 +3,7 @@ package get_credentials
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/hugin-and-munin/cred-checker/internal/details/cred_checkers"
 	"github.com/hugin-and-munin/cred-checker/internal/model"
@@ -22,16 +23,16 @@ func NewUseCase(credentialChecker CredentialChecker) *useCase {
 	}
 }
 
-func (u *useCase) CheckCredentials(ctx context.Context, inn string) (*model.Company, error) {
-	company, err := u.credentialChecker.SearchCompany(ctx, inn)
+func (u *useCase) CheckCredentials(ctx context.Context, inn string) (bool, error) {
+	_, err := u.credentialChecker.SearchCompany(ctx, inn)
 
 	if errors.Is(err, cred_checkers.ErrNotFound) {
-		return &model.Company{
-			Name:           "",
-			Inn:            inn,
-			HasCredentials: false,
-		}, nil
+		return false, nil
 	}
 
-	return company, err
+	if err != nil {
+		return false, fmt.Errorf("search for compeny failed: %w", err)
+	}
+
+	return true, err
 }

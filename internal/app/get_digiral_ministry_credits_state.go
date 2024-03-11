@@ -19,13 +19,12 @@ func (i *Implementation) GetDigitalMinistryCreditsState(ctx context.Context, req
 	}
 
 	state := cred_checker.CreditState_NOT_CREDITED
-	if result.HasCredentials {
+	if result {
 		state = cred_checker.CreditState_CREDITED
 	}
 
 	return &cred_checker.GetDigitalMinistryCreditsStateResponse{
-		Name:  result.Name,
-		Inn:   result.Inn,
+		Inn:   req.GetInn(),
 		State: state,
 	}, nil
 }
