@@ -16,7 +16,9 @@ bin-deps:
 
 mocks:
 	@echo "Generating mocks..."
-	mockgen -source=internal/use_cases/get_credentials/use_case.go -package mocks -destination internal/use_cases/get_credentials/mocks/mocks.go
+	mockgen -source=internal/use_cases/get_credentials/use_case.go -package mocks -destination internal/use_cases/get_credentials/mocks/mocks.go &
+	mockgen -source=internal/app/cred_checker/service.go -package mocks -destination internal/app/cred_checker/mocks/mocks.go
+
 
 proto-deps:
 	@echo "No proto dependencies"
