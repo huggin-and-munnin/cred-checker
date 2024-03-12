@@ -1,4 +1,4 @@
-package app
+package cred_checker
 
 import (
 	"context"

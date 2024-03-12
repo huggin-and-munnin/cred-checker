@@ -26,5 +26,7 @@ proto: proto-deps
 	mkdir -p pb
 	protoc --proto_path=api --go_out=pb/ cred-checker.proto
 	protoc --proto_path=api --go-grpc_out=pb/ cred-checker.proto
+	protoc --proto_path=api --go_out=pb/ health.proto
+	protoc --proto_path=api --go-grpc_out=pb/ health.proto
 
 generate: proto mocks

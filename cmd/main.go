@@ -7,16 +7,16 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/hugin-and-munin/cred-checker/internal/app"
+	"github.com/hugin-and-munin/cred-checker/internal/app/cred_checker"
+	"github.com/hugin-and-munin/cred-checker/internal/app/health"
 	"github.com/hugin-and-munin/cred-checker/internal/config"
-	pb "github.com/hugin-and-munin/cred-checker/pb/github.com/hugin-and-munin/cred-checker"
+	cred_checker_pb "github.com/hugin-and-munin/cred-checker/pb/github.com/hugin-and-munin/cred-checker"
+	health_pb "github.com/hugin-and-munin/cred-checker/pb/github.com/hugin-and-munin/health"
 	"google.golang.org/grpc"
 )
 
 func main() {
 	flag.Parse()
-
-	ServeHealthProbe()
 
 	port := fmt.Sprintf(":%s", config.GetValue(config.Port))
 
@@ -26,28 +26,24 @@ func main() {
 	}
 	s := grpc.NewServer()
 
-	server := NewCredCheckerServer()
+	credCheckerServer := NewCredCheckerServer()
+	healthProbe := NewHealthProbe()
 
-	pb.RegisterCredCheckerServer(s, server)
+	health_pb.RegisterHealthServer(s, healthProbe)
+	cred_checker_pb.RegisterCredCheckerServer(s, credCheckerServer)
+
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
 
-func NewCredCheckerServer() pb.CredCheckerServer {
+func NewCredCheckerServer() cred_checker_pb.CredCheckerServer {
 	httpClient := &http.Client{}
 
-	return app.NewCredChecker(httpClient)
+	return cred_checker.NewCredChecker(httpClient)
 }
 
-func ServeHealthProbe() {
-	port := fmt.Sprintf(":%s", config.GetValue(config.HealthPort).String())
-	go func() {
-		log.Printf("Starting health check server on port %s", port)
-		log.Printf("Health check path: %s", config.GetValue(config.HealthPath).String())
-		http.ListenAndServe(port, nil)
-	}()
-
-	log.Printf("health probe listening at port %s", port)
+func NewHealthProbe() health_pb.HealthServer {
+	return health.NewHealthProbe()
 }
